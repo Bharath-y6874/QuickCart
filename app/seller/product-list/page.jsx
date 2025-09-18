@@ -5,21 +5,41 @@ import Image from "next/image";
 import { useAppContext } from "@/context/AppContext";
 import Footer from "@/components/seller/Footer";
 import Loading from "@/components/Loading";
+import { toast } from "react-hot-toast";
 
 const ProductList = () => {
 
-  const { router } = useAppContext()
+  const { router,getToken, user } = useAppContext()
 
   const [products, setProducts] = useState([])
   const [loading, setLoading] = useState(true)
 
   const fetchSellerProduct = async () => {
+
+    try{
+      const token=await getToken()
+
+      const {data} = await axios.get('/api/product/seller',{ headers:{Authorization:`Bearer ${token}`}})
+
+      if (data.success){
+        setProducts(data.products)
+        setLoading(false)
+      }else{
+        toast.error(data.message)
+      }
+    }catch(error){
+   toast.error(error.message)
+    }
+
     setProducts(productsDummyData)
     setLoading(false)
   }
 
   useEffect(() => {
-    fetchSellerProduct();
+    if (user){
+      fetchSellerProduct();
+    }
+   
   }, [])
 
   return (

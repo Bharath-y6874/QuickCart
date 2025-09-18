@@ -4,8 +4,12 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Image from "next/image";
 import { useState } from "react";
+import { useAppContext } from "@/context/AppContext";
+
 
 const AddAddress = () => {
+
+    const {getToken,setAddresses} = useAppContext()
 
     const [address, setAddress] = useState({
         fullName: '',
@@ -18,7 +22,22 @@ const AddAddress = () => {
 
     const onSubmitHandler = async (e) => {
         e.preventDefault();
+         try {
+            
+            const token=await getToken()
 
+            const {data} = await axios.post('/api/address/add', address,{ headers:{Authorization:`Bearer ${token}`}})
+            if (data.success){
+                
+                toast.success(data.message)
+                Router.push('/cart')
+            } else{
+                toast.error(data.message)
+            }
+         } catch (error) {
+            toast.error(error.message)
+            
+         }
     }
 
     return (
