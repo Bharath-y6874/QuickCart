@@ -8,18 +8,35 @@ import Loading from "@/components/Loading";
 
 const Orders = () => {
 
-    const { currency } = useAppContext();
+    const { currency ,getToken,user} = useAppContext();
 
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
 
     const fetchSellerOrders = async () => {
-        setOrders(orderDummyData);
-        setLoading(false);
+        
+        try {
+            
+const token = await getToken();
+
+            const { data } = await axios.get('/api/order/seller', { headers: { Authorization: `Bearer ${token}` } });
+            if (data.success) {
+                setOrders(data.orders)
+                setLoading(false)
+            } else {
+                toast.error(data.message)
+            }
+
+        } catch (error) {
+            toast.error(error.message)
+        }
     }
 
     useEffect(() => {
+        if(user){
         fetchSellerOrders();
+        }
+        
     }, []);
 
     return (
